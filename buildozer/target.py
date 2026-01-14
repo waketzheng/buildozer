@@ -153,7 +153,8 @@ class Target:
         self.buildozer.cmd_serve()
 
     def path_or_git_url(self, repo, owner='kivy', branch='master',
-                        url_format='https://github.com/{owner}/{repo}.git',
+                        # url_format='https://github.com/{owner}/{repo}.git',
+                        url_format='git@github.com:{owner}/{repo}.git',
                         platform=None,
                         squash_hyphen=True):
         """Get source location for a git checkout
@@ -229,6 +230,18 @@ class Target:
             branch = config.getdefault('app', '{}_branch'.format(key), branch)
             default_url = url_format.format(owner=owner, repo=repo, branch=branch)
             url = config.getdefault('app', '{}_url'.format(key), default_url)
+            mapping = [
+                ('https://github.com/', 'git@github.com:'),
+            ]
+            for http, ssh in mapping:
+                if url.startswith(http):
+                    url = url.replace(http, ssh)
+                    break
+            else:
+                http = 'https://skia.googlesource.com/skcms/'
+                if url.startswith(http):
+                    url = url.replace(http, "git@github.com:google/skcms")
+                    branch = 'mirror'
         return path, url, branch
 
     def install_or_update_repo(self, repo, **kwargs):
