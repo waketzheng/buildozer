@@ -399,10 +399,10 @@ def _report_download_progress(bytes_read, total_size):
 
 def download(url, filename, cwd=None):
     """Download the file at url/filename to filename"""
+    url = url + str(filename)
     if url.startswith("https://github.com") and (proxy := os.getenv("GITHUB_PROXY")):
         url = proxy.rstrip("/") + "/" + url
         LOGGER.debug("Pad by proxy: {0}".format(proxy))
-    url = url + str(filename)
 
     LOGGER.debug("Downloading {0}".format(url))
 
