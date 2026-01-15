@@ -1,14 +1,14 @@
 """
-    A customised ConfigParser, suitable for buildozer.spec.
+A customised ConfigParser, suitable for buildozer.spec.
 
-    Supports
-        - list values
-            - either comma separated, or in their own [section:option] section.
-        - environment variable overrides of values
-            - overrides applied at construction.
-        - profiles
-        - case-sensitive keys
-        - "No values" are permitted.
+Supports
+    - list values
+        - either comma separated, or in their own [section:option] section.
+    - environment variable overrides of values
+        - overrides applied at construction.
+    - profiles
+    - case-sensitive keys
+    - "No values" are permitted.
 """
 
 from configparser import ConfigParser
@@ -124,7 +124,6 @@ class SpecParser(ConfigParser):
         if not profile:
             return
         for section in self.sections():
-
             # extract the profile part from the section name
             # example: [app@default,hd]
             parts = section.split("@", 1)

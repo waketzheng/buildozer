@@ -1,7 +1,7 @@
+import unittest
 from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from buildozer.specparser import SpecParser
 
@@ -196,13 +196,10 @@ class TestSpecParser(unittest.TestCase):
             """
         )
 
+        assert sp.get("section", "option1") == "a  # This is not considered a comment"
         assert (
-            sp.get("section", "option1") ==
-            "a  # This is not considered a comment"
-        )
-        assert (
-            sp.get("section", "option2") ==
-            "this is\na multiline string (not a list!)\n"
+            sp.get("section", "option2")
+            == "this is\na multiline string (not a list!)\n"
             "this_is_not_an_option=it is still part of the multiline"
         )
         assert sp.getlist("section", "option3") == [

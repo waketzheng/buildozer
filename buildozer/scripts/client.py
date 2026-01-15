@@ -1,8 +1,8 @@
-'''
+"""
 Main Buildozer client
 =====================
 
-'''
+"""
 
 import sys
 
@@ -19,9 +19,9 @@ def main():
         # the command failed.
         sys.exit(1)
     except BuildozerException as error:
-        Logger().error('%s' % error)
+        Logger().error("%s" % error)
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

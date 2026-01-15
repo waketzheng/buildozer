@@ -73,11 +73,14 @@ class TestTargetIos:
     def test_check_configuration_tokens(self):
         """Basic tests for the check_configuration_tokens() method."""
         target = init_target(self.temp_dir, {"ios.codesign.allowed": "yes"})
-        with mock.patch(
-            "buildozer.targets.android.Target.check_configuration_tokens"
-        ) as m_check_configuration_tokens, mock.patch(
-            "buildozer.targets.ios.TargetIos._get_available_identities"
-        ) as m_get_available_identities:
+        with (
+            mock.patch(
+                "buildozer.targets.android.Target.check_configuration_tokens"
+            ) as m_check_configuration_tokens,
+            mock.patch(
+                "buildozer.targets.ios.TargetIos._get_available_identities"
+            ) as m_get_available_identities,
+        ):
             target.check_configuration_tokens()
         assert m_get_available_identities.call_args_list == [mock.call()]
         assert m_check_configuration_tokens.call_args_list == [
@@ -226,32 +229,36 @@ class TestTargetIos:
         ]
         assert m_cmd.call_args_list == [
             mock.call(mock.ANY, cwd=target.ios_dir, env=mock.ANY),
-            mock.call([
-                "xcodebuild",
-                "-configuration",
-                "Debug",
-                "-allowProvisioningUpdates",
-                "ENABLE_BITCODE=NO",
-                "CODE_SIGNING_ALLOWED=NO",
-                "clean",
-                "build"],
+            mock.call(
+                [
+                    "xcodebuild",
+                    "-configuration",
+                    "Debug",
+                    "-allowProvisioningUpdates",
+                    "ENABLE_BITCODE=NO",
+                    "CODE_SIGNING_ALLOWED=NO",
+                    "clean",
+                    "build",
+                ],
                 cwd="/ios/dir/myapp-ios",
                 env=mock.ANY,
             ),
-            mock.call([
-                "xcodebuild",
-                "-alltargets",
-                "-configuration",
-                "Debug",
-                "-scheme",
-                "myapp",
-                "-archivePath",
-                "/ios/dir/myapp-0.1.intermediates/myapp-0.1.xcarchive",
-                "-destination",
-                "generic/platform=iOS",
-                "archive",
-                "ENABLE_BITCODE=NO",
-                "CODE_SIGNING_ALLOWED=NO"],
+            mock.call(
+                [
+                    "xcodebuild",
+                    "-alltargets",
+                    "-configuration",
+                    "Debug",
+                    "-scheme",
+                    "myapp",
+                    "-archivePath",
+                    "/ios/dir/myapp-0.1.intermediates/myapp-0.1.xcarchive",
+                    "-destination",
+                    "generic/platform=iOS",
+                    "archive",
+                    "ENABLE_BITCODE=NO",
+                    "CODE_SIGNING_ALLOWED=NO",
+                ],
                 cwd="/ios/dir/myapp-ios",
                 env=mock.ANY,
             ),

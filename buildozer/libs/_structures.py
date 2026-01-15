@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class Infinity:
 
+class Infinity:
     def __repr__(self):
         return "Infinity"
 
@@ -46,7 +46,6 @@ Infinity = Infinity()
 
 
 class NegativeInfinity:
-
     def __repr__(self):
         return "-Infinity"
 

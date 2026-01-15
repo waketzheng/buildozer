@@ -1,6 +1,6 @@
-from sys import exit
 import os
 from os.path import join
+from sys import exit
 
 import buildozer.buildops as buildops
 from buildozer.logger import Logger
@@ -14,7 +14,7 @@ def no_config(f):
 class Target:
     def __init__(self, buildozer):
         self.buildozer = buildozer
-        self.build_mode = 'debug'
+        self.build_mode = "debug"
         self.platform_update = False
         self.logger = Logger()
 
@@ -23,10 +23,10 @@ class Target:
 
     def check_configuration_tokens(self, errors=None):
         if errors:
-            self.logger.info('Check target configuration tokens')
+            self.logger.info("Check target configuration tokens")
             self.logger.error(
-                '{0} error(s) found in the buildozer.spec'.format(
-                    len(errors)))
+                "{0} error(s) found in the buildozer.spec".format(len(errors))
+            )
             for error in errors:
                 print(error)
             exit(1)
@@ -40,7 +40,7 @@ class Target:
     def get_custom_commands(self):
         result = []
         for x in dir(self):
-            if not x.startswith('cmd_'):
+            if not x.startswith("cmd_"):
                 continue
             if x[4:] in self.buildozer.standard_cmds:
                 continue
@@ -48,11 +48,11 @@ class Target:
         return result
 
     def get_available_packages(self):
-        return ['kivy']
+        return ["kivy"]
 
     def run_commands(self, args):
         if not args:
-            self.logger.error('Missing target command')
+            self.logger.error("Missing target command")
             self.buildozer.usage()
             exit(1)
 
@@ -60,18 +60,18 @@ class Target:
         last_command = []
         while args:
             arg = args.pop(0)
-            if arg == '--':
+            if arg == "--":
                 if last_command:
                     last_command += args
                     break
-            elif not arg.startswith('--'):
+            elif not arg.startswith("--"):
                 if last_command:
                     result.append(last_command)
                     last_command = []
                 last_command.append(arg)
             else:
                 if not last_command:
-                    self.logger.error('Argument passed without a command')
+                    self.logger.error("Argument passed without a command")
                     self.buildozer.usage()
                     exit(1)
                 last_command.append(arg)
@@ -82,13 +82,13 @@ class Target:
 
         for item in result:
             command, args = item[0], item[1:]
-            if not hasattr(self, 'cmd_{0}'.format(command)):
-                self.logger.error('Unknown command {0}'.format(command))
+            if not hasattr(self, "cmd_{0}".format(command)):
+                self.logger.error("Unknown command {0}".format(command))
                 exit(1)
 
-            func = getattr(self, 'cmd_{0}'.format(command))
+            func = getattr(self, "cmd_{0}".format(command))
 
-            need_config_check = not hasattr(func, '__no_config')
+            need_config_check = not hasattr(func, "__no_config")
             if need_config_check and not config_check:
                 config_check = True
                 self.check_configuration_tokens()
@@ -104,7 +104,7 @@ class Target:
 
     def cmd_debug(self, *args):
         self.buildozer.prepare_for_build()
-        self.build_mode = 'debug'
+        self.build_mode = "debug"
         self.buildozer.build()
 
     def cmd_release(self, *args):
@@ -121,7 +121,9 @@ class Target:
             error("")
             error("So change package.domain to anything else.")
             error("")
-            error("If you messed up before, set the environment variable to force the build:")
+            error(
+                "If you messed up before, set the environment variable to force the build:"
+            )
             error("export BUILDOZER_ALLOW_ORG_TEST_DOMAIN=1")
             error("")
             if "BUILDOZER_ALLOW_ORG_TEST_DOMAIN" not in os.environ:
@@ -140,7 +142,7 @@ class Target:
             if "BUILDOZER_ALLOW_KIVY_ORG_DOMAIN" not in os.environ:
                 exit(1)
 
-        self.build_mode = 'release'
+        self.build_mode = "release"
         self.buildozer.build()
 
     def cmd_deploy(self, *args):
@@ -152,11 +154,16 @@ class Target:
     def cmd_serve(self, *args):
         self.buildozer.cmd_serve()
 
-    def path_or_git_url(self, repo, owner='kivy', branch='master',
-                        # url_format='https://github.com/{owner}/{repo}.git',
-                        url_format='git@github.com:{owner}/{repo}.git',
-                        platform=None,
-                        squash_hyphen=True):
+    def path_or_git_url(
+        self,
+        repo,
+        owner="kivy",
+        branch="master",
+        # url_format='https://github.com/{owner}/{repo}.git',
+        url_format="git@github.com:{owner}/{repo}.git",
+        platform=None,
+        squash_hyphen=True,
+    ):
         """Get source location for a git checkout
 
         This method will check the `buildozer.spec` for the keys:
@@ -214,34 +221,34 @@ class Target:
 
         """
         if squash_hyphen:
-            key = repo.replace('-', '_')
+            key = repo.replace("-", "_")
         else:
             key = repo
         if platform:
             key = "{}.{}".format(platform, key)
         config = self.buildozer.config
-        path = config.getdefault('app', '{}_dir'.format(key), None)
+        path = config.getdefault("app", "{}_dir".format(key), None)
 
         if path is not None:
             path = join(self.buildozer.root_dir, path)
             url = None
             branch = None
         else:
-            branch = config.getdefault('app', '{}_branch'.format(key), branch)
+            branch = config.getdefault("app", "{}_branch".format(key), branch)
             default_url = url_format.format(owner=owner, repo=repo, branch=branch)
-            url = config.getdefault('app', '{}_url'.format(key), default_url)
+            url = config.getdefault("app", "{}_url".format(key), default_url)
             mapping = [
-                ('https://github.com/', 'git@github.com:'),
+                ("https://github.com/", "git@github.com:"),
             ]
             for http, ssh in mapping:
                 if url.startswith(http):
                     url = url.replace(http, ssh)
                     break
             else:
-                http = 'https://skia.googlesource.com/skcms/'
+                http = "https://skia.googlesource.com/skcms/"
                 if url.startswith(http):
                     url = url.replace(http, "git@github.com:google/skcms")
-                    branch = 'mirror'
+                    branch = "mirror"
         return path, url, branch
 
     def install_or_update_repo(self, repo, **kwargs):
@@ -269,7 +276,8 @@ class Target:
                 buildops.cmd(
                     ["git", "clone", "--branch", clone_branch, clone_url],
                     cwd=self.buildozer.platform_dir,
-                    env=self.buildozer.environ)
+                    env=self.buildozer.environ,
+                )
         elif self.platform_update:
             if custom_dir:
                 buildops.file_copytree(custom_dir, install_dir)
@@ -277,9 +285,11 @@ class Target:
                 buildops.cmd(
                     ["git", "clean", "-dxf"],
                     cwd=install_dir,
-                    env=self.buildozer.environ)
+                    env=self.buildozer.environ,
+                )
                 buildops.cmd(
                     ["git", "pull", "origin", clone_branch],
                     cwd=install_dir,
-                    env=self.buildozer.environ)
+                    env=self.buildozer.environ,
+                )
         return install_dir

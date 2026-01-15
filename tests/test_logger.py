@@ -1,8 +1,8 @@
 import unittest
-from buildozer.logger import Logger
-
 from io import StringIO
 from unittest import mock
+
+from buildozer.logger import Logger
 
 
 class TestLogger(unittest.TestCase):

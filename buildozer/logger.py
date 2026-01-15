@@ -7,9 +7,9 @@ Logger implementation used by Buildozer.
 Supports colored output, where available.
 """
 
+import sys
 from os import environ
 from pprint import pformat
-import sys
 
 try:
     # if installed, it can give color to Windows as well

@@ -7,22 +7,23 @@ Changes to the system are logged.
 """
 
 import codecs
+import os
+import shlex
+import tarfile
+import time
 from collections import namedtuple
 from glob import glob
-import os
-from os.path import join, exists, realpath, expanduser
+from os.path import exists, expanduser, join, realpath
 from pathlib import Path
-import pexpect
-from queue import Queue, Empty
-from sys import exit, stdout, stderr, platform
-from subprocess import Popen, PIPE
-from shutil import copyfile, rmtree, copytree, move, which
-import shlex
-import time
-import tarfile
+from queue import Empty, Queue
+from shutil import copyfile, copytree, move, rmtree, which
+from subprocess import PIPE, Popen
+from sys import exit, platform, stderr, stdout
 from threading import Thread
 from urllib.request import Request, urlopen
 from zipfile import ZipFile
+
+import pexpect
 
 from buildozer.exceptions import BuildozerCommandException
 from buildozer.logger import Logger
@@ -144,7 +145,8 @@ def file_extract(archive, env, cwd="."):
             ).return_code
             if return_code != 0:
                 raise BuildozerCommandException(
-                    "Unzip gave bad return code: {}".format(return_code))
+                    "Unzip gave bad return code: {}".format(return_code)
+                )
         return
 
     if path.suffix == ".bin":
@@ -397,6 +399,9 @@ def _report_download_progress(bytes_read, total_size):
 
 def download(url, filename, cwd=None):
     """Download the file at url/filename to filename"""
+    if url.startswith("https://github.com") and (proxy := os.getenv("GITHUB_PROXY")):
+        url = proxy.rstrip("/") + "/" + url
+        LOGGER.debug("Pad by proxy: {0}".format(proxy))
     url = url + str(filename)
 
     LOGGER.debug("Downloading {0}".format(url))

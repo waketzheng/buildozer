@@ -1,15 +1,15 @@
+import tarfile
+import time
 from os import environ, unlink
 from pathlib import Path
-import tarfile
 from queue import Queue
 from sys import executable, platform
-import time
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock, skipIf
 from zipfile import ZipFile
 
-from buildozer.exceptions import BuildozerCommandException
 import buildozer.buildops as buildops
+from buildozer.exceptions import BuildozerCommandException
 
 
 class MockStream:
@@ -54,7 +54,6 @@ class MockStream:
 class TestBuildOps(TestCase):
     def test_file_exists(self):
         with TemporaryDirectory() as base_dir:
-
             nonexistent_path = Path(base_dir) / "newpath"
 
             # Accepts paths, strings, parts.
@@ -64,9 +63,10 @@ class TestBuildOps(TestCase):
             assert buildops.file_exists(base_dir)
 
     def test_mkdir_rmdir(self):
-        with mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger, TemporaryDirectory() as base_dir:
+        with (
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+            TemporaryDirectory() as base_dir,
+        ):
             new_path = Path(base_dir) / "newpath"
 
             # No action if path doesn't exist.
@@ -96,9 +96,10 @@ class TestBuildOps(TestCase):
             m_logger.reset_mock()
 
     def test_file_remove(self):
-        with mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger, TemporaryDirectory() as base_dir:
+        with (
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+            TemporaryDirectory() as base_dir,
+        ):
             new_path = Path(base_dir) / "newpath"
 
             # No action if path doesn't exist.
@@ -119,10 +120,10 @@ class TestBuildOps(TestCase):
             assert not buildops.file_exists(new_path)
 
     def test_rename(self):
-        with mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger, TemporaryDirectory() as base_dir:
-
+        with (
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+            TemporaryDirectory() as base_dir,
+        ):
             old_path = Path(base_dir) / "old"
             new_path = Path(base_dir) / "new"
 
@@ -151,10 +152,10 @@ class TestBuildOps(TestCase):
             m_logger.reset_mock()
 
     def test_file_copy(self):
-        with mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger, TemporaryDirectory() as base_dir:
-
+        with (
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+            TemporaryDirectory() as base_dir,
+        ):
             old_path = Path(base_dir) / "old"
             new_path = Path(base_dir) / "new"
 
@@ -186,10 +187,10 @@ class TestBuildOps(TestCase):
             m_logger.reset_mock()
 
     def test_file_copytree(self):
-        with mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger, TemporaryDirectory() as base_dir:
-
+        with (
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+            TemporaryDirectory() as base_dir,
+        ):
             old_path = Path(base_dir) / "old"
             new_path = Path(base_dir) / "new"
 
@@ -218,10 +219,10 @@ class TestBuildOps(TestCase):
             m_logger.reset_mock()
 
     def test_extract_file(self):
-
-        with mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger, TemporaryDirectory() as base_dir:
+        with (
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+            TemporaryDirectory() as base_dir,
+        ):
             m_logger.log_level = 2
             m_logger.INFO = 1
 
@@ -301,10 +302,10 @@ class TestBuildOps(TestCase):
         with self.assertRaises(UnicodeDecodeError):
             command_output.decode("utf-8")
 
-        with mock.patch("buildozer.buildops.Popen") as m_popen, mock.patch(
-            "buildozer.buildops.stdout"
+        with (
+            mock.patch("buildozer.buildops.Popen") as m_popen,
+            mock.patch("buildozer.buildops.stdout"),
         ):
-
             m_popen().stdout = [command_output]
             m_popen().returncode = 0
 
@@ -348,9 +349,7 @@ class TestBuildOps(TestCase):
         assert cmd_result.return_code == 0
 
         # What if a path is passed?
-        cmd_result = buildops.cmd(
-            [Path(executable), "-V"], environ, get_stdout=True
-        )
+        cmd_result = buildops.cmd([Path(executable), "-V"], environ, get_stdout=True)
         assert cmd_result.stdout.startswith("Python")
         assert cmd_result.stderr is None
         assert cmd_result.return_code == 0
@@ -363,9 +362,7 @@ class TestBuildOps(TestCase):
             # This command isn't even found to return an error code.
             _ = buildops.cmd(["__thisdoesntexist__"], environ)
 
-        with mock.patch(
-            "buildozer.buildops.LOGGER", log_level=2, INFO=1
-        ) as m_logger:
+        with mock.patch("buildozer.buildops.LOGGER", log_level=2, INFO=1) as m_logger:
             with self.assertRaises(BuildozerCommandException):
                 # This command gives an error code, and aborts.
                 _ = buildops.cmd([executable, "__thisdoesntexist__"], environ)
@@ -430,17 +427,14 @@ class TestBuildOps(TestCase):
     def test_download(self):
         with TemporaryDirectory() as download_dir:
             ico_path = Path(download_dir) / "favicon.ico"
-            buildops.download(
-                "https://github.com/", "favicon.ico", cwd=download_dir
-            )
+            buildops.download("https://github.com/", "favicon.ico", cwd=download_dir)
             assert ico_path.exists()
 
     def test_checkbin(self):
-
-        with mock.patch("buildozer.buildops.exit") as m_exit, mock.patch(
-            "buildozer.buildops.LOGGER"
-        ) as m_logger:
-
+        with (
+            mock.patch("buildozer.buildops.exit") as m_exit,
+            mock.patch("buildozer.buildops.LOGGER") as m_logger,
+        ):
             assert buildops.checkbin("Python", "python")
             # Probably ^ == executable, but not always in the CI environment.
             m_logger.debug.assert_called()
