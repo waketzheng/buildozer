@@ -153,9 +153,13 @@ class TargetAndroid(Target):
 
     def _p4a(self, cmd, env, **kwargs):
         kwargs.setdefault("cwd", self.p4a_dir)
-        return buildops.cmd(
-            [*self._p4a_cmd, *cmd, *self.extra_p4a_args], env=env, **kwargs
-        )
+        try:
+            return buildops.cmd(
+                [*self._p4a_cmd, *cmd, *self.extra_p4a_args], env=env, **kwargs
+            )
+        except FileNotFoundError as e:
+            self.logger.error(str(e))
+            return buildops.CommandResult(b'', str(e).encode(), 1)
 
     @property
     def p4a_dir(self):

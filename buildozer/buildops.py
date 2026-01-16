@@ -9,6 +9,7 @@ Changes to the system are logged.
 import codecs
 import os
 import shlex
+import shutil
 import tarfile
 import time
 from collections import namedtuple
@@ -400,16 +401,23 @@ def _report_download_progress(bytes_read, total_size):
 def download(url, filename, cwd=None):
     """Download the file at url/filename to filename"""
     url = url + str(filename)
-    if url.startswith("https://github.com") and (proxy := os.getenv("GITHUB_PROXY")):
-        url = proxy.rstrip("/") + "/" + url
-        LOGGER.debug("Pad by proxy: {0}".format(proxy))
-
-    LOGGER.debug("Downloading {0}".format(url))
 
     if cwd:
         filename = join(cwd, filename)
     file_remove(filename)
+    cache_file = Path(url.replace("https:/", "/home/ubuntu/.cache/kivy"))
+    if cache_file.exists() and cache_file.stat().st_size > 100:
+        shutil.copy(cache_file, filename)
+        LOGGER.debug("Use global cached file instead of Downloading {0}".format(url))
+        return filename
+    if url.startswith("https://github.com"):
+        if proxy := os.getenv("GITHUB_PROXY"):
+            url = proxy.rstrip("/") + "/" + url
+            LOGGER.debug("Pad by proxy: {0}".format(proxy))
+        else:
+            LOGGER.debug("Github not padded because of GITHUB_PROXY not defined")
 
+    LOGGER.debug("Downloading {0}".format(url))
     request = Request(
         url,
         headers={
@@ -433,5 +441,7 @@ def download(url, filename, cwd=None):
                 bytes_read += len(block)
 
                 _report_download_progress(bytes_read, total_size)
-
+    if not cache_file.parent.exists():
+        cache_file.parent.mkdir(parents=True)
+    shutil.copy(filename, cache_file)
     return filename
