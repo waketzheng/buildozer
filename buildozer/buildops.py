@@ -319,12 +319,14 @@ def cmd(
             stdout_line, stderr_line = item
             if stdout_line:
                 if get_stdout:
+                    assert ret_stdout is not None
                     ret_stdout.append(stdout_line)
                 if show_output:
                     stdout.write(stdout_line.decode("utf-8", "replace"))
                     stdout.flush()
             if stderr_line:
                 if get_stderr:
+                    assert ret_stderr is not None
                     ret_stderr.append(stderr_line)
                 if show_output:
                     stderr.write(stderr_line.decode("utf-8", "replace"))
@@ -405,7 +407,7 @@ def download(url, filename, cwd=None):
     if cwd:
         filename = join(cwd, filename)
     file_remove(filename)
-    cache_file = Path(url.replace("https:/", "/home/ubuntu/.cache/kivy"))
+    cache_file = Path(url.replace("https:/", (Path.home() / ".cache/kivy").as_posix()))
     if cache_file.exists() and cache_file.stat().st_size > 100:
         shutil.copy(cache_file, filename)
         LOGGER.debug("Use global cached file instead of Downloading {0}".format(url))

@@ -159,7 +159,7 @@ class TargetAndroid(Target):
             )
         except FileNotFoundError as e:
             self.logger.error(str(e))
-            return buildops.CommandResult(b'', str(e).encode(), 1)
+            return buildops.CommandResult(b"", str(e).encode(), 1)
 
     @property
     def p4a_dir(self):
