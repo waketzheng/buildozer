@@ -1,0 +1,56 @@
+# Ignore Git files
+.git/
+.github/
+.gitignore
+
+# Node.js specific
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info
+
+# General build artifacts
+build/
+dist/
+*.exe
+*.dll
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files (be careful with this!)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (optional)
+Dockerfile
+.dockerignore
+docker-compose.ymlhills
+
+# python tools
+.ruff_cache
+.mypy_cache
+.pytest_cache
+.pdm-python

@@ -83,4 +83,4 @@ ENV VIRTUAL_ENV="${HOME_DIR}/.venv"
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN pip install --upgrade "Cython<3.0" wheel pip ${SRC_DIR}
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
