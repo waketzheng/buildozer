@@ -30,6 +30,7 @@ import traceback
 from glob import glob
 from os import environ
 from os.path import basename, exists, expanduser, join, realpath, relpath
+from pathlib import Path
 from platform import architecture
 from shutil import which
 from sys import executable, platform
@@ -735,17 +736,18 @@ class TargetAndroid(Target):
                     cwd=p4a_dir,
                     env=self.buildozer.environ,
                 ).stdout.strip()
-                cur_branch = buildops.cmd(
+                cur_branchs = buildops.cmd(
                     ["git", "branch", "-vv"],
                     get_stdout=True,
                     cwd=p4a_dir,
                     env=self.buildozer.environ,
-                ).stdout.split()[1]
-                if any([cur_url != p4a_url, cur_branch != p4a_branch]) and (
-                    cur_url != p4a_url.replace(http, ssh)
-                ):
+                ).stdout.strip()
+                re_git = re.compile(r"github\.com[:/]([-\w]+)/([-\w]+)")
+                if p4a_branch not in cur_branchs or re_git.findall(
+                    cur_url
+                ) != re_git.findall(p4a_url):
                     self.logger.info(
-                        f"Detected old url/branch ({cur_url}/{cur_branch}), deleting..."
+                        f"Detected old url/branch ({cur_url}/{cur_branchs}), deleting..."
                     )
                     buildops.rmdir(p4a_dir)
 
@@ -753,19 +755,35 @@ class TargetAndroid(Target):
                 if p4a_url.startswith(http):
                     p4a_url = p4a_url.replace(http, ssh)
                     self.logger.info(f"Switched to {p4a_url = }")
-                buildops.cmd(
-                    [
-                        "git",
-                        "clone",
-                        "-b",
-                        p4a_branch,
-                        "--single-branch",
-                        p4a_url,
-                        self.p4a_directory_name,
-                    ],
-                    cwd=self.buildozer.platform_dir,
-                    env=self.buildozer.environ,
-                )
+                dirname = "python-for-android"
+                if p := Path(dirname).exists():
+                    p = p.resolve()
+                    buildops.cmd(
+                        ["mv", str(p), "."],
+                        cwd=self.buildozer.platform_dir,
+                        env=self.buildozer.environ,
+                    )
+                elif p := Path.home().joinpath("github", dirname).exists():
+                    p = p.resolve()
+                    buildops.cmd(
+                        ["cp", "-r", str(p), "."],
+                        cwd=self.buildozer.platform_dir,
+                        env=self.buildozer.environ,
+                    )
+                else:
+                    buildops.cmd(
+                        [
+                            "git",
+                            "clone",
+                            "-b",
+                            p4a_branch,
+                            "--single-branch",
+                            p4a_url,
+                            self.p4a_directory_name,
+                        ],
+                        cwd=self.buildozer.platform_dir,
+                        env=self.buildozer.environ,
+                    )
             elif self.platform_update:
                 buildops.cmd(
                     ["git", "clean", "-dxf"], cwd=p4a_dir, env=self.buildozer.environ
